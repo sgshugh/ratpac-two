@@ -7,7 +7,7 @@
   type: "sphere",
   r_max: 4500.0,
   material: "validwater",
-  invisible: 0,
+  invisible: 1,
 }
 
 {
@@ -19,7 +19,8 @@
   type: "sphere",
   r_max: 3500,
   material: "validwater",
-  color: [1.0, 0.5, 0.0, 0.75]
+  invisible: 1,
+  //color: [1.0, 0.5, 0.0, 0.75]
 }
 
 //////////////////

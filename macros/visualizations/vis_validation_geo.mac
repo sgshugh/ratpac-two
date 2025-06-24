@@ -16,8 +16,16 @@
 /vis/viewer/flush
 
 ## Cut a plane through the detector
-/vis/viewer/addCutawayPlane 0 0 0 cm 1 0 0
+#/vis/viewer/addCutawayPlane 0 0 0 cm 1 0 0
 #/vis/viewer/addCutawayPlane 0 -100 0 cm 0 1 0
 #/vis/viewer/set/viewpointThetaPhi -90 0
 #/vis/viewer/zoomTo 10
 #/vis/viewer/panTo 10 0
+
+/generator/add combo gun2:regexfill:poisson
+/generator/vtx/set e- 0.0 0.0 0.0 0.0 1.0 2.0
+/generator/pos/set detector
+
+##### RUN ###########
+/run/beamOn 100
+

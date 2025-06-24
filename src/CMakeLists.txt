@@ -25,6 +25,7 @@ add_subdirectory(ratbase)
 # Create our libraries and executables
 
 # RAT shared library
+set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
 add_library(RATPAC SHARED)
 target_link_libraries(RATPAC PUBLIC
   ${ROOT_LIBRARIES} ${Geant4_LIBRARIES} ${CRY_LIBRARIES} ${TENSORFLOW_LIBRARIES}

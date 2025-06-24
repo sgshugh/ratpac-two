@@ -57,6 +57,7 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     options.mchits = table->GetZ("include_mchits");
     options.nthits = table->GetZ("include_nestedtubehits");
     options.calib = table->GetZ("include_calib");
+    options.opticalproperties = table->GetZ("include_opticalproperties");
   } catch (DBNotFoundError &e) {
     options.tracking = false;
     options.mcparticles = false;
@@ -65,6 +66,7 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
     options.mchits = true;
     options.calib = true;
     options.nthits = false;
+    options.opticalproperties = false;
   }
   if (options.digitizerfits) {
     waveform_fitters = table->GetSArray("waveform_fitters");
@@ -117,6 +119,9 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     metaTree->Branch("calibU", &calibU);
     metaTree->Branch("calibV", &calibV);
     metaTree->Branch("calibW", &calibW);
+  }
+  if (options.opticalproperties) {
+    metaTree->Branch("opticalProperties", &opticalProperties);
   }
   this->AssignAdditionalMetaAddresses();
   dsentries = 0;
@@ -716,6 +721,12 @@ void OutNtupleProc::EndOfRun(DS::Run *run) {
   if (outputFile) {
     outputFile->cd();
 
+    // optical properties
+    if (options.opticalproperties) {
+      DS::Optical *optical = runBranch->GetOpticalInfo();
+      opticalProperties = optical->GetOpticalProperty();
+    }
+
     DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
     const DS::ChannelStatus *ch_status = runBranch->GetChannelStatus();
     for (int id = 0; id < pmtinfo->GetPMTCount(); id++) {
@@ -779,6 +790,9 @@ void OutNtupleProc::SetS(std::string param, std::string value) {
 }
 
 void OutNtupleProc::SetI(std::string param, int value) {
+  if (param == "include_opticalproperties") {
+    options.opticalproperties = value ? true : false;
+  }
   if (param == "include_tracking") {
     options.tracking = value ? true : false;
   }

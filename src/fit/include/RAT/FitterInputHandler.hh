@@ -38,7 +38,7 @@ class FitterInputHandler {
   /**
    * Default constructor. Configures the input based on the FIT_COMMON entry.
    * */
-  FitterInputHandler() : FitterInputHandler(""){};
+  FitterInputHandler() : FitterInputHandler("") {};
   FitterInputHandler(const std::string& index) { Configure(index); };
 
   /**

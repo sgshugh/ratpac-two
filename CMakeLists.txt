@@ -68,7 +68,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_OSX_ARCHITECTURES "x86_64")
+#set(CMAKE_OSX_ARCHITECTURES "x86_64")
 
 ###########################################################
 # External libraries and dependencies
@@ -88,7 +88,7 @@ set(TENSORFLOW_Enabled 0)
 find_library(TENSORFLOW_LIBRARIES tensorflow)
 if(TENSORFLOW_LIBRARIES)
   message(STATUS "Compiling with Tensorflow")
-  set(TENSORFLOW_Enabled 1)
+  set(TENSORFLOW_Enabled 0)
 else()
   message(WARNING "Tensorflow Not Found")
   set(TENSORFLOW_LIBRARIES "")
