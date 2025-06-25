@@ -12,6 +12,7 @@
 #ifndef __RAT_DS_Optical__
 #define __RAT_DS_Optical__
 
+#include <TAxis.h>
 #include <TGraph.h>
 #include <TObject.h>
 #include <TTimeStamp.h>
@@ -29,24 +30,54 @@ class Optical : public TObject {
   /**
    * function that prints the optical properties to the meta branch
    */
-  std::vector<TGraph> GetOpticalProperty() {
+  std::pair<std::vector<TString>, std::vector<TGraph*>> GetOpticalProperty() {
     GetOPTICS();
-    return opticalProperties;
+    return std::make_pair(opticalProperties_names, opticalProperties);
   }
 
   void GetOPTICS() {
     DBLinkGroup mats = DB::Get()->GetLinkGroup("OPTICS");
+    std::vector<std::string> opticalNames = {"ABSLENGTH",         "RINDEX",         "REFLECTIVITY", "SCINTILLATION",
+                                             "SCINTILLATION_WLS", "REEMISSION_PROB"};
+
+    std::string value1 = "_value1";
+    std::string value2 = "_value2";
 
     // Load everything in OPTICS
-    for (DBLinkGroup::iterator iv = mats.begin(); iv != mats.end(); iv++) {
-      std::string name = iv->first;
-      std::cout << "Loading optics: " << name;
+    for (std::string opticalName : opticalNames) {
+      for (DBLinkGroup::iterator iv = mats.begin(); iv != mats.end(); iv++) {
+        std::string name = iv->first;
+        DBLinkPtr table = iv->second;
+        try {
+          std::vector<double> abslength_wavelength = table->GetDArray((opticalName + value1));
+          std::vector<double> abslength_value = table->GetDArray((opticalName + value2));
+        } catch (DBNotFoundError& e) {
+          std::cout << "Optics failed to get " << opticalName << " on: " << name << std::endl;
+          continue;
+        }
+
+        std::cout << "Loading " << opticalName << " optics: " << name << std::endl;
+
+        std::vector<double> abslength_wavelength = table->GetDArray((opticalName + value1));
+        std::vector<double> abslength_value = table->GetDArray((opticalName + value2));
+
+        TGraph* new_gr = new TGraph(abslength_value.size());
+
+        for (size_t i = 0; i < abslength_wavelength.size(); ++i) {
+          new_gr->SetPoint(i, abslength_wavelength.at(i), abslength_value.at(i));
+        }
+        new_gr->GetXaxis()->SetTitle("Wavelength [nm]");
+        new_gr->GetYaxis()->SetTitle(opticalName.c_str());
+        opticalProperties.push_back(new_gr);
+        opticalProperties_names.push_back((name + "_" + opticalName));
+      }
     }
   }
 
  private:
   std::string name;
-  std::vector<TGraph> opticalProperties;
+  std::vector<TString> opticalProperties_names;
+  std::vector<TGraph*> opticalProperties;
 };
 // ClassDef(Optical, 2);
 

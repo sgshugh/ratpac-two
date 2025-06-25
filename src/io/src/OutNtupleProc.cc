@@ -82,6 +82,29 @@ OutNtupleProc::OutNtupleProc() : Processor("outntuple") {
 
 bool OutNtupleProc::OpenFile(std::string filename) {
   outputFile = TFile::Open(filename.c_str(), "RECREATE");
+  // optical TGraphs
+  if (options.opticalproperties) {
+    outputFile->mkdir("opticalProperties");
+    outputFile->cd("opticalProperties");
+    // optical properties
+    DS::Optical *optical = runBranch->GetOpticalInfo();
+    std::pair<std::vector<TString>, std::vector<TGraph *>> opticalProperties_tuple = optical->GetOpticalProperty();
+    opticalProperties_names = opticalProperties_tuple.first;
+    opticalProperties = opticalProperties_tuple.second;
+
+    std::cout << opticalProperties.size() << std::endl;
+    for (size_t i = 0; i < opticalProperties.size(); ++i) {
+      std::cout << i << std::endl;
+
+      (opticalProperties.at(i))->SetTitle(opticalProperties_names.at(i));
+      (opticalProperties.at(i))->SetName(opticalProperties_names.at(i));
+      (opticalProperties.at(i))->Write();
+
+      // metaTree->Branch(opticalProperties_names.at(i), &(opticalProperties.at(i)) );
+    }
+    outputFile->cd("../");
+  }
+
   // Meta Tree
   metaTree = new TTree("meta", "meta");
   metaTree->Branch("runId", &runId);
@@ -119,9 +142,6 @@ bool OutNtupleProc::OpenFile(std::string filename) {
     metaTree->Branch("calibU", &calibU);
     metaTree->Branch("calibV", &calibV);
     metaTree->Branch("calibW", &calibW);
-  }
-  if (options.opticalproperties) {
-    metaTree->Branch("opticalProperties", &opticalProperties);
   }
   this->AssignAdditionalMetaAddresses();
   dsentries = 0;
@@ -720,12 +740,6 @@ Processor::Result OutNtupleProc::DSEvent(DS::Root *ds) {
 void OutNtupleProc::EndOfRun(DS::Run *run) {
   if (outputFile) {
     outputFile->cd();
-
-    // optical properties
-    if (options.opticalproperties) {
-      DS::Optical *optical = runBranch->GetOpticalInfo();
-      opticalProperties = optical->GetOpticalProperty();
-    }
 
     DS::PMTInfo *pmtinfo = runBranch->GetPMTInfo();
     const DS::ChannelStatus *ch_status = runBranch->GetChannelStatus();

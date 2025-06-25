@@ -121,7 +121,8 @@ class OutNtupleProc : public Processor {
   ULong64_t calibTime;
   Double_t calibX, calibY, calibZ, calibU, calibV, calibW;
   // Optical properties
-  std::vector<TGraph> opticalProperties;
+  std::vector<TGraph *> opticalProperties;
+  std::vector<TString> opticalProperties_names;
   // Digitizer waveforms
   int waveform_pmtid;
   std::vector<Double_t> inWindowPulseTimes;
